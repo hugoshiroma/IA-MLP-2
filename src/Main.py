@@ -2,8 +2,9 @@ from sklearn import metrics
 from sklearn.neural_network import MLPClassifier #implementa o MLP
 from sklearn.model_selection import train_test_split #seleciona os dados dividindo-os entre conjunto de treino e conjunto de teste
 from sklearn.preprocessing import StandardScaler #pre processamento dos dados normalizando-os utilizando StandardScaler
-from sklearn.metrics import classification_report,confusion_matrix #classificador e matriz de confusao
+from sklearn.metrics import classification_report, confusion_matrix #classificador e matriz de confusao
 from sklearn.metrics import f1_score
+from sklearn.metrics import accuracy_score
 import pandas as pd
 import numpy as np
 
@@ -11,27 +12,27 @@ import numpy as np
 train_df = pd.read_csv('../inputs/Part-1/caracteres-limpos.csv', header=None)
 train_df = train_df.drop(labels=63, axis=1)
 targets = [
-    [1, -1, -1, -1, -1, -1, -1],
-    [-1, 1, -1, -1, -1, -1, -1],
-    [-1, -1, 1, -1, -1, -1, -1],
-    [-1, -1, -1, 1, -1, -1, -1],
-    [-1, -1, -1, -1, 1, -1, -1],
-    [-1, -1, -1, -1, -1, 1, -1],
-    [-1, -1, -1, -1, -1, -1, 1],
-    [1, -1, -1, -1, -1, -1, -1],
-    [-1, 1, -1, -1, -1, -1, -1],
-    [-1, -1, 1, -1, -1, -1, -1],
-    [-1, -1, -1, 1, -1, -1, -1],
-    [-1, -1, -1, -1, 1, -1, -1],
-    [-1, -1, -1, -1, -1, 1, -1],
-    [-1, -1, -1, -1, -1, -1, 1],
-    [1, -1, -1, -1, -1, -1, -1],
-    [-1, 1, -1, -1, -1, -1, -1],
-    [-1, -1, 1, -1, -1, -1, -1],
-    [-1, -1, -1, 1, -1, -1, -1],
-    [-1, -1, -1, -1, 1, -1, -1],
-    [-1, -1, -1, -1, -1, 1, -1],
-    [-1, -1, -1, -1, -1, -1, 1]
+    [1, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 0, 0, 0, 1]
 ]
 targets = np.squeeze(targets)
 ## o problema sepa ta no target
@@ -40,14 +41,14 @@ targets = np.squeeze(targets)
 train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets)
 
 ##normalizacao
-#scaler = StandardScaler()
+scaler = StandardScaler()
 
 # aplica o fit soment para os dados de treinamento
-#scaler.fit(train_df_x)
+scaler.fit(train_df_x)
 
 #aplica as transformacoes nos dados
-#train_df_x = scaler.transform(train_df_x)
-#train_df_test = scaler.transform(train_df_test)
+train_df_x = scaler.transform(train_df_x)
+train_df_test = scaler.transform(train_df_test)
 
 ##implementacao do MLP atribuindo o quantidade de neuronios presentes em cada camada escondida
 # mlp_model = MLPClassifier(solver='sgd',
@@ -58,15 +59,20 @@ train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, 
 #                           max_iter=400,
 #                           verbose=True)
 
-mlp_model = MLPClassifier(hidden_layer_sizes=(63,63),
-                          max_iter=500,
-                          solver = 'sgd')
+mlp_model = MLPClassifier(hidden_layer_sizes=15,
+                          max_iter=80000,
+                          solver='sgd',
+                          learning_rate_init=0.0001,
+                          verbose=True)
 
 mlp_model.fit(train_df_x, targets_y)
 
 #mlp_model.predict(train_df)
 
+predictions_proba = mlp_model.predict_proba(train_df_test)
 predictions = mlp_model.predict(train_df_test)
+
+accuracy = accuracy_score(targets_test, predictions)
 
 ##matriz de confusao
 print(f'matriz de confusao:\n{confusion_matrix(targets_test.argmax(axis=1), predictions.argmax(axis=1))}')
