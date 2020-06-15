@@ -1,13 +1,21 @@
-from sklearn import metrics
+"""
+    Classe responsavel por por controlar toda a execução do algoritmo Multi-layer Perceptron, tanto para sua fase
+    treinamento, quanto para sua fase de teste
+"""
 from sklearn.neural_network import MLPClassifier #implementa o MLP
-from sklearn.model_selection import train_test_split #seleciona os dados dividindo-os entre conjunto de treino e conjunto de teste
-from sklearn.preprocessing import StandardScaler #pre processamento dos dados normalizando-os utilizando StandardScaler
-from sklearn.metrics import classification_report, confusion_matrix #classificador e matriz de confusao
-from sklearn.metrics import f1_score
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split #define os conjuntos de treino e teste
+from sklearn.preprocessing import StandardScaler #normalizacao
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix #metricas
+from sklearn.model_selection import GridSearchCV #pre-fit. otimizador dos hyperparametros do MLPClassifier
+
 import pandas as pd
 import numpy as np
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(style="darkgrid")
+
+
 
 ##realiza a leitura do csv para pegar os dados para o MLP
 train_df = pd.read_csv('../inputs/Part-1/caracteres-limpos.csv', header=None)
@@ -36,46 +44,44 @@ targets = [
     [0, 0, 0, 0, 0, 0, 1]
 ]
 targets = np.squeeze(targets)
-## o problema sepa ta no target
 
 ## divide os data frames "train_df" e "targets" em conjunto de treino e conjunto de teste
-train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets)
+train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, targets, test_size= 7, stratify=targets)
 
-##normalizacao
+###normalizacao
 # scaler = StandardScaler()
 
-# aplica o fit soment para os dados de treinamento
+###aplica o fit soment para os dados de treinamento
 # scaler.fit(train_df_x)
 
-#aplica as transformacoes nos dados
+###plica as transformacoes nos dados
 # train_df_x = scaler.transform(train_df_x)
 # train_df_test = scaler.transform(train_df_test)
 
-##implementacao do MLP atribuindo o quantidade de neuronios presentes em cada camada escondida
-# mlp_model = MLPClassifier(solver='sgd',
-#                           learning_rate='constant',
-#                           learning_rate_init=0.5,
-#                           hidden_layer_sizes=(30,),
-#                           random_state=1,
-#                           max_iter=400,
-#                           verbose=True)
+###GridSearchCV
+###define o MLP com a quantidade de iteracoes para o GrifSearch
+mlp_model = MLPClassifier(
+    max_iter=10000
+)
 
-# mlp_model = MLPClassifier(
-#     max_iter=50000
-# )
-
+# ###define os parametros que serao combinados pelo GridSearch
 # parameter_space = {
-#     'hidden_layer_sizes': [2, 5, 10, 20, 50, 63, 70, 100, (5, 5), (10, 10), (25, 25), (63, 63), (100, 100)],
-#     'activation': ['tanh', 'logistic'],
+#     'hidden_layer_sizes': [15, 20, 45, 63, 70],
+#     'activation': ['relu', 'tanh', 'logistic'],
 #     'solver': ['sgd', 'adam'],
-#     'alpha': [0.00001, 0.0001, 0.001, 0.05],
-#     'learning_rate': ['constant', 'adaptive'],
-#     'learning_rate_init': [0.001, 0.05, 0.1, 0.25, 0.5, 0.6, 0.75, 0.8, 0.9, 0.99],
+#     'alpha': [0.00001, 0.0001, 0.001],
+#     'learning_rate': ['constant' ,'adaptive'],
+#     'learning_rate_init': [0.25, 0.5, 0.6, 0.8, 0.7],
+#     'tol': [0.00001, 0.000001, 0.0001, 0.001, 0.01, 0.0000001]
 # }
-
+#
+# ##chamada que implementa o GridSearch
 # clf = GridSearchCV(mlp_model, parameter_space, n_jobs=-1, cv=7)
+#
+# ##realiza o fit com para as combinacoes retornadas pelo GridSearch utilizando os parametros pre-definidos
 # clf.fit(train_df_x, targets_y)
 #
+# ##log GridSearch
 # print('Best estimator found:\n', clf.best_estimator_)
 # print('Best parameters found:\n', clf.best_params_)
 # print('Best index found:\n', clf.best_index_)
@@ -87,40 +93,58 @@ train_df_x, train_df_test, targets_y, targets_test = train_test_split(train_df, 
 # print('Param grid:\n', clf.param_grid)
 # print('Multimetric:\n', clf.multimetric_)
 
-
-mlp_model = MLPClassifier(hidden_layer_sizes=63,
-                          max_iter=50000,
-                          activation='tanh',
+##implementacao do MLP atribuindo os hyperparametros necessarios
+mlp_model = MLPClassifier(hidden_layer_sizes=70,
+                          max_iter=10000,
+                          alpha=1e-05,
+                          activation='logistic',
                           solver='sgd',
                           learning_rate='adaptive',
-                          learning_rate_init=0.6,
-                          shuffle=True,
+                          learning_rate_init=0.5,
+                          tol=1e-07,
+                          #shuffle=True,
                           verbose=True)
 
-mlp_model.fit(train_df_x, targets_y)
+MLP_fit = mlp_model.fit(train_df_x, targets_y)
+
+print('### PARAMETROS INICIAIS DA REDE ###\n--- NUMERO DE NEURONIOS ---\n')
+print(f'Camada de Entrada:63\n')
+print(f'Camada Escondida:{mlp_model.hidden_layer_sizes}\n')
+print(f'Camada de Saida:{mlp_model.n_outputs_}\n')
+
+print(f'--- PESOS ---\nCamada de Entrada:?{mlp_model.coefs_[0]}\n')
+print(f'--- BIAS ---\nCamada de Entrada:?{mlp_model.intercepts_[0]}\n')
+
+print('--- CONFIGURACOES DA REDE ---\n')
+print(f'Funcao de Ativacao:{mlp_model.activation}\n')
+print(f'Solver utilizado:{mlp_model.solver}\n')
+print(f'Taxa de Aprendizado:{mlp_model.learning_rate}\n')
+print(f'Taxa de Aprendizado Inicial:{mlp_model.learning_rate_init}\n')
+print(f'Tol:{mlp_model.tol}\n')
 
 predictions_proba = mlp_model.predict_proba(train_df_test)
 predictions = mlp_model.predict(train_df_test)
 
-accuracy = accuracy_score(targets_test, predictions)
+print('### PARAMETROS FINAIS DA REDE ###\n')
+
+###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
+print(f'--- PESOS ---\nCamada de Saida:{mlp_model.coefs_[1]}\n')
+
+###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
+print(f'--- BIAS ---\nCamada de Saida:{mlp_model.intercepts_[1]}\n')
+
+print('### METRICAS ###')
+print(f'--- ACURACIA ---\n{accuracy_score(targets_test, predictions)}\n')
+
+##curva de erro x iteracao
+print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
+loss_curve = pd.DataFrame(mlp_model.loss_curve_)
+graph = sns.relplot(ci=None, kind="line", data=loss_curve)
+graph
+#gg(loss_curve, aes(x='iterations', y='loss')) + gg.geom_line()
 
 ##matriz de confusao
-print(f'matriz de confusao:\n{confusion_matrix(targets_test.argmax(axis=1), predictions.argmax(axis=1))}')
-#
-# ##classificador
-# print(f'classificador:\n{classification_report(targets_test.argmax(axis=1),predictions.argmax(axis=1))}')
-#
-# pesos = mlp_model.coefs_ # são os pesos
+print(f'--- MATRIZ DE CONFUSAO ---\n{confusion_matrix(targets_test.argmax(axis=1), predictions.argmax(axis=1))}\n')
 
-##é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
-print(f'pesos:\n{mlp_model.coefs_}')
-#
-# é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
-# print(f'bias:\n{mlp_model.intercepts_}')
-
-# clf = svm.SVC(gamma=0.001, C=100.)
-# clf.fit(train_df, targets[0])
-# # targets deve ter 1 dimensão
-# print(clf.predict(train_df))
-# print(clf.predict_proba)
-
+##classificador
+print(f'--- OUTRAS METRICAS DO CLASSIFICADOR ---\n{classification_report(targets_test.argmax(axis=1),predictions.argmax(axis=1))}\n')
