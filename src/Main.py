@@ -46,7 +46,6 @@ for file in files:
                                   learning_rate_init=0.6,
                                   tol=1e-07,
                                   verbose=True)
-
         MLP_fit = mlp_model.fit(train_df_x, targets_y)
 
         print()
