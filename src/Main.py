@@ -47,15 +47,13 @@ for file in files:
                                   tol=1e-07,
                                   verbose=True)
 
-        mlp_model._init_coef()
-
         MLP_fit = mlp_model.fit(train_df_x, targets_y)
 
         print()
         print('PARAMETROS DE INICIALIZACAO DA REDE \n NUMERO DE NEURONIOS \n')
         print(f'Camada de Entrada: 63')
         print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-        print(f'Camada de Saida: {mlp_model.n_outputs_}')
+        print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
 
         print('PARAMETROS DE CONFIGURACAO DA REDE')
         print(f'Numero de Epocas: {mlp_model.n_iter_}')
@@ -64,7 +62,7 @@ for file in files:
         print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
         print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
         print(f'Tolerancia: {mlp_model.tol}')
-        print(f'Penalidade: {mlp_model.alpha}')
+        print(f'Penalidade: {mlp_model.alpha}\n')
 
         print('PARAMETROS FINAIS DA REDE')
         ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
@@ -72,7 +70,7 @@ for file in files:
         print(f'Pesos Camada de Saida: \n{mlp_model.coefs_[1]}')
         ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
         print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
-        print(f'Bias Camada de Saida: \n{mlp_model.intercepts_[1]}')
+        print(f'Bias Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
 
         print('METRICAS')
         predictions_proba = mlp_model.predict_proba(train_df_test)
@@ -102,10 +100,10 @@ for file in files:
 
         MLP_fit = mlp_model.fit(train_df, targets)
 
-        print('PARAMETROS DE INICIALIZACAO DA REDE \nNUMERO DE NEURONIOS ')
+        print('PARAMETROS DE INICIALIZACAO DA REDE\nNUMERO DE NEURONIOS ')
         print(f'Camada de Entrada: 2')
         print(f'Camada Escondida: {mlp_model.hidden_layer_sizes}')
-        print(f'Camada de Saida: {mlp_model.n_outputs_}')
+        print(f'Camada de Saida: {mlp_model.n_outputs_}\n')
 
         print('--- PARAMETROS DE CONFIGURACAO DA REDE ---')
         print(f'Numero de Epocas: {mlp_model.n_iter_}')
@@ -114,7 +112,7 @@ for file in files:
         print(f'Taxa de Aprendizado: {mlp_model.learning_rate}')
         print(f'Taxa de Aprendizado Inicial: {mlp_model.learning_rate_init}')
         print(f'Tolerancia: {mlp_model.tol}')
-        print(f'Alpha: {mlp_model.alpha}')
+        print(f'Alpha: {mlp_model.alpha}\n')
 
         print('PARAMETROS FINAIS DA REDE')
         ###é uma lista de matrizes de peso, em que a matriz de peso no índice i representa os pesos entre a camada i e a camada i + 1.
@@ -122,12 +120,12 @@ for file in files:
         print(f'PESOS Camada de Saida: \n{mlp_model.coefs_[1]}')
         ###é uma lista de vetores de bias, em que o vetor no índice i representa os valores de bias adicionados à camada i + 1.
         print(f'Bias Camada de Entrada: \n{mlp_model.intercepts_[0]}')
-        print(f'BIAS Camada de Saida: \n{mlp_model.intercepts_[1]}')
+        print(f'BIAS Camada de Saida: \n{mlp_model.intercepts_[1]}\n')
 
         print('METRICAS')
         predictions_proba = mlp_model.predict_proba(train_df)
         predictions = mlp_model.predict(train_df)
-        print(f'ACURACIA: {accuracy_score(targets, predictions)}')
+        print(f'ACURACIA: {accuracy_score(targets, predictions)}\n')
 
         ##curva de erro x iteracao
         # print('--- ERRO X ITERACAO ---\nCurva do erro calculado em funcao da perda x iteracao.\n')
