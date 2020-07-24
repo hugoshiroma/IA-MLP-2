@@ -74,8 +74,8 @@ def init_mlp(neuronio, taxa, epoca, early_stopping=False):
     predictions = mlp_model.predict(test_df)
     print("RESULTADOS:\n")
     print(predictions)
-    accuracy = metrics.accuracy_score(test_targets, predictions)
-    print(f'ACURACIA: {accuracy}\n')
+    # accuracy = metrics.accuracy_score(test_targets, predictions)
+    # print(f'ACURACIA: {accuracy}\n')
 
     #sys.stdout.close()
     return mlp_model
@@ -94,8 +94,8 @@ def generate_final_graphs(predictions):
     sns.heatmap(metrics.confusion_matrix(test_targets, predictions), annot=True,
                 ax=ax, fmt='d', cmap='Reds')
     ax.set_title("Matriz de Confusão", fontsize=18)
-    ax.set_ylabel("True label")
-    ax.set_xlabel("Predicted Label")
+    ax.set_ylabel("Rótulo Verdadeiro")
+    ax.set_xlabel("Rótulo Previsto")
     plt.tight_layout()
     plt.savefig(f"results\\graphs\\best_mlp_confusion_matrix.png")
 
@@ -103,17 +103,17 @@ def generate_final_graphs(predictions):
     precisions, recalls, thresholds = metrics.precision_recall_curve(test_targets, predictions)
     fig2, ax2 = plt.subplots(figsize=(12, 3))
     plt.plot(thresholds, precisions[:-1], 'b--', label='Precisão')
-    plt.plot(thresholds, recalls[:-1], 'g-', label='Recall')
-    plt.xlabel('Threshold')
+    plt.plot(thresholds, recalls[:-1], 'g-', label='Revocação')
+    plt.xlabel('Limiar de Decisão')
     plt.legend(loc='center right')
     plt.ylim([0, 1])
-    plt.title('Precisão x Recall', fontsize=14)
+    plt.title('Precisão x Revocação', fontsize=14)
     plt.savefig(f"results\\graphs\\best_mlp_precision_recall.png")
 
     #  ROC
     fpr, tpr, thresholds = metrics.roc_curve(test_targets, predictions)
     fig, ax = plt.subplots(figsize=(12, 4))
-    plt.plot(fpr, tpr, linewidth=2, label='Logistic Regression')
+    plt.plot(fpr, tpr, linewidth=2, label='Regressão Logística')
     plt.plot([0, 1], [0, 1], 'k--')
     plt.axis([0, 1, 0, 1])
     plt.xlabel('Taxa de Falsos Positivos')
@@ -121,6 +121,13 @@ def generate_final_graphs(predictions):
     plt.legend(loc='lower right')
     plt.title('Curva ROC', fontsize=14)
     plt.savefig(f"results\\graphs\\best_mlp_roc_curve.png")
+
+    # Acurácia, comparativo com a acuracia do classification_report
+    accuracy = metrics.accuracy_score(test_targets, predictions)
+    print(f'ACURACIA: {accuracy}\n')
+
+    report = metrics.classification_report(test_targets, best_mlp_predictions)
+    print(f'Relatório de Classificação\n{report}\n')
 
 
 # generate_csv()
@@ -146,20 +153,21 @@ for neuronio in neuronios:
                 best_mlp = mlp_model
 
 
-graph_title = f"best_mlp_loss_graph_{best_config[0]}_{best_config[1]}_{best_config[2]}"
+graph_title = f"melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
 generate_loss_graph(best_mlp, graph_title)
 best_mlp_predictions = best_mlp.predict(test_df)
 
 # abaixo executamos o MLP com a estratégia de early stopping para a melhor
 # configuração encontrada entre cada combinação de hiperparâmetros
 best_mlp_early_stopping = init_mlp(best_config[0], best_config[1], best_config[2], True)
-es_graph_title = f"es_best_mlp_loss_graph_{best_config[0]}_{best_config[1]}_{best_config[2]}"
+es_graph_title = f"es_melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
 generate_loss_graph(best_mlp_early_stopping, es_graph_title)
 
 # os gráficos são gerados para comparar a função do erro entre os dois modelos
 
-report = metrics.classification_report(test_targets, best_mlp_predictions)
-print(f'Relatório de Classificação\n{report}\n')
+# report = metrics.classification_report(test_targets, best_mlp_predictions)
+# print(f'Relatório de Classificação\n{report}\n')
+
 generate_final_graphs(best_mlp_predictions)
 
 end = datetime.datetime.now()
