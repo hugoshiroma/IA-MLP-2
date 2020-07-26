@@ -27,6 +27,9 @@ ep1 <- data.frame(bosta$Saida,
                   bosta$Rotulo) %>% mutate(RotuloSaida = as.factor(ifelse(bosta.Saida > 0.7, 1, 0)),
                                            Rotulo = as.factor(bosta.Rotulo),
                                            Saida = ifelse(bosta.Saida > 0.7, 1, 0))
+
+erro <- read_excel("vai toma no cu.xlsx")
+
 matrix = confusionMatrix(ep1$RotuloSaida, ep1$Rotulo)
 
 df = ldply(matrix, data.frame)
@@ -92,4 +95,37 @@ ggplotly(
          y="Taxa de Verdadeiros Positivos",
          x="Taxa de Falsos Positivos")
 )
+
+#Erro
+ggplotly(
+  ggplot(erro) +
+    geom_line(aes(x = epoca, y = treinamento, color = "Treinamento", linetype = "Treinamento")) +
+    geom_line(aes(x = epoca, y = validação, color = "Validacao", linetype = "Validacao")) +
+    scale_color_manual("Curvas",
+                       breaks = c("Treinamento", "Validacao"),
+                       values = c("Treinamento" = "#7184a4", "Validacao" = "#8cbf9e")
+                       ) +
+    scale_linetype_manual("Curvas",
+                          values = c("Treinamento" = 1, "Validacao" = 3)) +
+    labs(title="Treinamento x Validação",
+       y="Erro Médio",
+       x="Número de Épocas")
+)
+
+ggplotly(
+  ggplot(erro) +
+    geom_line(aes(x = epoca, y = treinamento)) +
+    labs(title="Treinamento",
+       y="Erro Médio",
+       x="Número de Épocas")
+)
+
+ggplotly(
+  ggplot(erro) +
+    geom_line(aes(x = epoca, y = validação)) +
+    labs(title="Validação",
+       y="Erro Médio",
+       x="Número de Épocas")
+)
+
 ```

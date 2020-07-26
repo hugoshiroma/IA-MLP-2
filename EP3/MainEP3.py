@@ -137,9 +137,9 @@ max_accuracy = 0
 best_config = []
 best_mlp = None
 
-neuronios = [3, 10, 15]
-taxas = [0.6, 0.3, 0.1]
-epocas = [300, 700, 1000]
+neuronios = [3]
+taxas = [0.3]
+epocas = [300]
 
 for neuronio in neuronios:
     for taxa in taxas:
@@ -154,14 +154,29 @@ for neuronio in neuronios:
 
 
 graph_title = f"melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
-generate_loss_graph(best_mlp, graph_title)
+#generate_loss_graph(best_mlp, graph_title)
 best_mlp_predictions = best_mlp.predict(test_df)
 
 # abaixo executamos o MLP com a estratégia de early stopping para a melhor
 # configuração encontrada entre cada combinação de hiperparâmetros
 best_mlp_early_stopping = init_mlp(best_config[0], best_config[1], best_config[2], True)
 es_graph_title = f"es_melhor_mlp_gráfico_erro_{best_config[0]}_{best_config[1]}_{best_config[2]}"
-generate_loss_graph(best_mlp_early_stopping, es_graph_title)
+#generate_loss_graph(best_mlp_early_stopping, es_graph_title)
+
+def NEW_generate_loss_graph(mlp, mlp_es):
+    loss_curve_best = pd.DataFrame(mlp.loss_curve_)
+    loss_curve_best_es = pd.DataFrame(mlp_es.loss_curve_)
+
+    plt.plot(loss_curve_best, 'g-', label='Treinamento')
+    plt.plot(loss_curve_best_es, 'b--', label='Validação')
+    plt.xlabel('Número de Épocas')
+    plt.legend(loc='center right')
+    plt.title('Treinamento x Validação', fontsize=14)
+    plt.savefig(f"results\\graphs\\train_validation_error.png")
+
+NEW_generate_loss_graph(best_mlp, best_mlp_early_stopping)
+
+
 
 # os gráficos são gerados para comparar a função do erro entre os dois modelos
 
